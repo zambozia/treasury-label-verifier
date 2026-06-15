@@ -1,0 +1,18 @@
+record_id,brand_name,class_type,alcohol_content,net_contents,government_warning,bottler_producer,country_of_origin,beverage_type,test_category
+1,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Old Tom Distillery,USA,Distilled Spirits,Clean_Valid
+2,ABC DISTILLERY ,Straight Rye Whisky,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,ABC Distillery,USA,Distilled Spirits,Clean_Valid
+3,12345 Imports,Rum with Coconut Liqueur,18% Alc./Vol.,200mL,GOVERNMENT WARNING:,12345 Imports,USA,Distilled Spirits,Clean_Valid
+4,Robin Hood Brewing Co.,Pilsner,5% Alc./Vol.,12 FL oz,GOVERNMENT WARNING:,Robin Hood Brewing Co.,USA,Malt Beverage,Clean_Valid
+5,Trail Blazer,Blonde Ale,5% Alc./Vol.,16 FL oz,GOVERNMENT WARNING:,Bust'd Brewing,USA,Malt Beverage,Clean_Valid
+6,Sierra Azul,Tequila,40% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Sierra Azul Distillery,Mexico,Distilled Spirits,Clean_Valid
+7,Clos Normand,Brut French Fermented Cider,4% Alc/Vol.,720 mL,GOVERNMENT WARNING:,Clos Normand,France,Wine,Poor_Quaility
+8,Clos Normand,Brut French Fermented Cider,6.5% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Clos Normand Ciders,France,Wine,Poor_Quaility
+9,Ravenswood,Kentucky Straight Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Ravenswood Distilling Co.,USA,Distilled Spirits,Poor_Quaility
+10,Hollow Creek,Kentucky Straight Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Hollow Creek Distilling Co.,USA,Distilled Spirits,Poor_Quaility
+11,Lost Spirits ,Rum,62% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Bounty Hunter Rare Wine & Spirits,USA,Distilled Spirits,Poor_Quaility
+12,Refreshed Spirits,Rum,42% Alc./Vol.,750 ml,GOVERNMENT WARNING:,M.N.W. Distillery,USA,Distilled Spirits,Poor_Quaility
+13,Whitner Wines,Brut French Fermented Cider,15% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Whitner Wine Co.,France,Wine,Poor_Quaility
+14,Pine Creek,Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Pine Creek Distillery LLC,USA,Distilled Spirits,Invalid_Missing_Alcohol_Content
+15,Ironwood,Kentucky Straight Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Ironwood Distilling Co.,USA,Distilled Spirits,Invalid_Missing_Net_Content
+16,Hoppy Town,India Pale Ale,6.7% Alc./Vol.,12 FL oz,GOVERNMENT WARNING:,Whitner Brewing Co.,USA,Malt Beverage,Invalid_Missing_Net_Content
+17,Hollow Ridge,Kentucky Straight Bourbon Whiskey,45% Alc./Vol.,750 mL,GOVERNMENT WARNING:,Hollow Ridge Distilling Co.,USA,Distilled Spirits,Invalid_Missing_Missing_Warning

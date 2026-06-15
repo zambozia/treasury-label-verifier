@@ -1,0 +1,2 @@
+Image,Matched Record,Match Confidence,Match Status,Overall Status,Primary Issue,All Issues,Processing Time
+tequila_cleanValid_label.png,Sierra Azul,100%,Auto Match,Needs Review,Government Warning: Missing,Government Warning: Missing - Government warning was not found in the OCR text.,1.64s
