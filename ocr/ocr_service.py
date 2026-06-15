@@ -4,11 +4,12 @@ import cv2
 import numpy as np
 import re
 import time
+import os
 
-
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = (
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    )
 
 MAX_SECONDS = 5.0
 MAX_IMAGE_WIDTH = 1800
