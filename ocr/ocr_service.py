@@ -6,6 +6,9 @@ import re
 import time
 import os
 
+
+os.environ.setdefault("OMP_THREAD_LIMIT", "1")
+
 if os.name == "nt":
     pytesseract.pytesseract.tesseract_cmd = (
         r"C:\Program Files\Tesseract-OCR\tesseract.exe"
