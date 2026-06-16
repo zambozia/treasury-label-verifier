@@ -16,10 +16,10 @@ if os.name == "nt":
 
 # Hard OCR budget. The app's target is under 5 seconds per label, so this
 # service stops OCR work before the overall app processing reaches that limit.
-MAX_SECONDS = 9.75
+MAX_SECONDS = 4.9
 MAX_IMAGE_WIDTH = 1600
 MIN_PASS_TIMEOUT = 0.35
-MAX_PASS_TIMEOUT = 9.25
+MAX_PASS_TIMEOUT = 4.25
 
 
 def pil_to_cv(image):
