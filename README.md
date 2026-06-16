@@ -1,4 +1,41 @@
 Alcohol Label Verification App
+OCR-assisted alcohol label verification prototype for Treasury label review workflows.
+Quick Start
+Live Application
+https://treasury-label-verifier-docker.onrender.com/
+GitHub Repository
+https://github.com/zambozia/treasury-label-verifier
+Test Data
+Sample CSV datasets and label images are included in:
+sample-data/
+sample-labels/
+sample-batches/
+Typical Workflow
+Upload application CSV
+Upload label images
+Run verification
+Review results
+Export CSV reports
+Local Installation
+## Running Locally
+
+### Clone Repository
+
+git clone https://github.com/zambozia/treasury-label-verifier
+
+### Install Dependencies
+
+pip install -r requirements.txt
+
+### Install Tesseract OCR
+
+Windows:
+https://github.com/UB-Mannheim/tesseract/wiki
+
+### Run
+
+streamlit run app.py 
+
 Overview
 The Alcohol Label Verification App is a batch-first prototype designed to assist Alcohol and Tobacco Tax and Trade Bureau (TTB) compliance agents with reviewing alcohol beverage labels.
 The application uses local Optical Character Recognition (OCR) to extract text from uploaded label images, matches each label against application records provided through a CSV file, and validates required label fields.
@@ -25,7 +62,7 @@ Fast processing and ease of use
 Local OCR, streamlined workflow, target under five seconds per label
 Janet
 Batch processing support
-Batch-first workflow supporting 5–20 labels
+Batch-first workflow supporting 5â€“20 labels
 Marcus Williams
 Restricted network environments
 Local-first architecture with no required external AI APIs
@@ -138,7 +175,7 @@ The application attempts to identify the most likely application record for each
 Confidence Thresholds
 95% and above:
 Auto Match
-70%–94%:
+70%â€“94%:
 Needs Review
 Below 70%:
 No Match
@@ -261,16 +298,8 @@ Integration with TTB review systems
 Audit logging
 Accessibility improvements
 FedRAMP-compliant deployment architecture
-Larger batch processing workflows (200–500+ labels)
+Larger batch processing workflows (200â€“500+ labels)
 Manual record assignment workflows
-
-Running Locally
-Install Dependencies
-pip install -r requirements.txt
-
-Run Application
-streamlit run app.py
-
 
 Test Data
 The repository includes sample data demonstrating:
@@ -286,33 +315,56 @@ These resources allow reviewers to evaluate the prototype without creating their
 
 Repository Structure
 app.py
-
 docs/
-
 ocr/
-
 matching/
-
 validation/
-
 utils/
-
 sample-labels/
-
 sample-data/
-
 sample-batches/
-
 README.md
 
 
-Approach Summary
-This solution focuses on:
-Simplicity
-Speed
-Transparency
-Human usability
-Government-friendly architecture
-Human-centered decision support
-The objective is to demonstrate how OCR-assisted verification can reduce repetitive review tasks while preserving human judgment, explainability, and accountability within the compliance review process.
+Approach and Technical Decisions
+The project was developed as an OCR-assisted decision-support tool rather than a fully automated compliance system.
+Several approaches were evaluated during development. Early versions prioritized OCR accuracy but required more than 50 seconds to process some labels. Later versions prioritized speed but reduced extraction accuracy.
+The final implementation balances speed and accuracy by:
+Using multiple OCR preprocessing passes
+Applying text normalization and fuzzy matching
+Limiting OCR execution time per label
+Preserving human review workflows
+Providing explainable validation results
+This approach achieved reliable field extraction while maintaining processing times generally below five seconds per label on the deployed environment.
+The application intentionally keeps the reviewer in control of all final compliance decisions.
+
+Development Challenges and Lessons Learned
+Several challenges were encountered during development:
+OCR Accuracy
+Early OCR implementations struggled with decorative fonts, low-contrast labels, and complex layouts. Multiple preprocessing techniques and OCR pass strategies were evaluated before reaching acceptable performance.
+OCR Performance
+One iteration achieved excellent extraction accuracy but required more than 50 seconds to process certain labels. The final implementation restored the original multi-pass OCR workflow and optimized execution by limiting OCR threading, reducing processing times to under five seconds per label while maintaining accuracy.
+Deployment
+The application was initially deployed using a standard Python deployment environment. OCR dependencies proved difficult to support reliably in that configuration. Deployment was migrated to a Docker-based architecture, allowing Tesseract OCR and supporting libraries to run consistently.
+Record Matching
+Several iterations were required to balance fuzzy matching confidence thresholds while preserving explainability and minimizing false positives.
+Human Review Workflow
+The final design intentionally routes uncertain results to a "Needs Review" state rather than forcing automated decisions. This preserves reviewer oversight and aligns with the project's compliance-oriented goals.
+
+Version: 1.0
+Status: Submission Candidate
+Last Updated: June 2026 
+## Prototype Results
+
+Testing was performed using sample alcohol beverage labels representing beer, wine, distilled spirits, and imported products.
+
+Final deployed performance achieved:
+
+- Batch processing support for multiple labels
+- Processing times generally under 5 seconds per label
+- Successful validation of required label fields
+- Explainable validation results
+- Human-review workflow for uncertain cases
+
+The prototype intentionally favors transparency and reviewer oversight over fully automated approval decisions.
 
