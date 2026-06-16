@@ -6,7 +6,6 @@ import re
 import time
 import os
 
-
 os.environ.setdefault("OMP_THREAD_LIMIT", "1")
 
 if os.name == "nt":
@@ -14,12 +13,8 @@ if os.name == "nt":
         r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     )
 
-# Hard OCR budget. The app's target is under 5 seconds per label, so this
-# service stops OCR work before the overall app processing reaches that limit.
-MAX_SECONDS = 4.9
-MAX_IMAGE_WIDTH = 1600
-MIN_PASS_TIMEOUT = 0.35
-MAX_PASS_TIMEOUT = 4.25
+MAX_SECONDS = 5.0
+MAX_IMAGE_WIDTH = 1800
 
 
 def pil_to_cv(image):
@@ -72,26 +67,9 @@ def otsu_threshold(gray):
     return processed
 
 
-def run_tesseract(image, psm=11, timeout=0.85):
-    """
-    Runs one Tesseract pass with a real subprocess timeout.
-
-    The earlier version checked the 5-second budget only between passes.
-    If one Tesseract call took 30 seconds, the app could not stop it.
-    This timeout prevents a single OCR pass from taking over the whole label.
-    """
+def run_tesseract(image, psm=11):
     config = f"--oem 3 --psm {psm}"
-
-    try:
-        return pytesseract.image_to_string(
-            image,
-            config=config,
-            timeout=timeout
-        )
-    except RuntimeError:
-        # pytesseract raises RuntimeError when the timeout is exceeded.
-        # Treat that pass as no useful text and continue while budget remains.
-        return ""
+    return pytesseract.image_to_string(image, config=config)
 
 
 def clean_ocr_line(line):
@@ -154,36 +132,18 @@ def score_ocr_text(text):
     return score
 
 
-def detected_core_fields(text):
-    """
-    Tracks OCR progress across passes.
-
-    Important limitation: this OCR layer does not know the matched CSV record yet,
-    so it cannot validate exact Brand Name or Class/Type values here. It can only
-    detect whether core label signals are present. Actual field validation still
-    happens later in validation/validator.py.
-    """
-    text_lower = text.lower() if text else ""
-
-    return {
-        "alcohol_content": bool(re.search(r"\d{1,3}\s*%\s*(alc|abv|alcohol)", text_lower)),
-        "net_contents": bool(re.search(r"\d+\s*(ml|m\s*l|fl\.?\s*oz|oz|pint|pt)", text_lower)),
-        "government_warning": bool(re.search(r"government\s+warning", text_lower)),
-        "class_type_signal": bool(re.search(
-            r"whiskey|whisky|bourbon|tequila|rum|beer|ale|wine|liqueur|pilsner",
-            text_lower
-        )),
-    }
-
-
 def has_core_label_signals(text):
-    fields = detected_core_fields(text)
-    return all(fields.values())
+    text_lower = text.lower()
 
+    has_alcohol = bool(re.search(r"\d{1,3}\s*%\s*alc", text_lower))
+    has_net = bool(re.search(r"\d+\s*(ml|fl\.?\s*oz|oz|pint|pt)", text_lower))
+    has_warning = bool(re.search(r"government\s+warning", text_lower))
+    has_type = bool(re.search(
+        r"whiskey|whisky|bourbon|tequila|rum|beer|ale|wine|liqueur|pilsner",
+        text_lower
+    ))
 
-def remaining_field_names(text):
-    fields = detected_core_fields(text)
-    return [name for name, found in fields.items() if not found]
+    return has_alcohol and has_net and has_warning and has_type
 
 
 def extract_text_from_image(uploaded_image) -> str:
@@ -197,37 +157,39 @@ def extract_text_from_image(uploaded_image) -> str:
     gray_1x = grayscale(cv_image)
     gray_2x = resize_image(gray_1x, 2)
 
-    # Build cheaper/high-yield candidates first. More expensive preprocessing is
-    # only generated if the time budget allows continued OCR attempts.
+    sharp_2x = sharpen_image(gray_2x)
+    threshold_2x = threshold_image(gray_2x)
+    otsu_2x = otsu_threshold(gray_2x)
+
+    inverted_gray_2x = cv2.bitwise_not(gray_2x)
+    inverted_threshold_2x = cv2.bitwise_not(threshold_2x)
+    inverted_otsu_2x = cv2.bitwise_not(otsu_2x)
+
     candidates = [
-        ("gray_1x_psm6", lambda: gray_1x, 6),
-        ("gray_1x_psm11", lambda: gray_1x, 11),
-        ("gray_2x_psm6", lambda: gray_2x, 6),
-        ("gray_2x_psm11", lambda: gray_2x, 11),
-        ("sharp_2x_psm6", lambda: sharpen_image(gray_2x), 6),
-        ("threshold_2x_psm6", lambda: threshold_image(gray_2x), 6),
-        ("otsu_2x_psm6", lambda: otsu_threshold(gray_2x), 6),
-        ("inverted_threshold_2x_psm11", lambda: cv2.bitwise_not(threshold_image(gray_2x)), 11),
+        ("gray_2x_psm11", gray_2x, 11),
+        ("gray_2x_psm6", gray_2x, 6),
+        ("sharp_2x_psm11", sharp_2x, 11),
+        ("sharp_2x_psm6", sharp_2x, 6),
+        ("threshold_2x_psm11", threshold_2x, 11),
+        ("threshold_2x_psm6", threshold_2x, 6),
+        ("otsu_2x_psm11", otsu_2x, 11),
+        ("otsu_2x_psm6", otsu_2x, 6),
+        ("inverted_gray_2x_psm11", inverted_gray_2x, 11),
+        ("inverted_threshold_2x_psm11", inverted_threshold_2x, 11),
+        ("inverted_otsu_2x_psm11", inverted_otsu_2x, 11),
     ]
 
     text_outputs = []
     best_text = ""
     best_score = -1
 
-    for name, image_factory, psm in candidates:
+    for name, candidate_image, psm in candidates:
         elapsed = time.time() - start_time
-        remaining = MAX_SECONDS - elapsed
 
-        if remaining <= MIN_PASS_TIMEOUT:
+        if elapsed >= MAX_SECONDS:
             break
 
-        candidate_image = image_factory()
-        pass_timeout = max(
-            MIN_PASS_TIMEOUT,
-            min(MAX_PASS_TIMEOUT, remaining - 0.05)
-        )
-
-        text = run_tesseract(candidate_image, psm, timeout=pass_timeout)
+        text = run_tesseract(candidate_image, psm)
 
         if text and len(text.strip()) > 10:
             text_outputs.append(text)
@@ -239,8 +201,6 @@ def extract_text_from_image(uploaded_image) -> str:
                 best_score = combined_score
                 best_text = combined_text
 
-            # Stop early when the merged OCR output contains the core label
-            # signals needed for downstream matching and validation.
             if has_core_label_signals(combined_text):
                 return combined_text
 
