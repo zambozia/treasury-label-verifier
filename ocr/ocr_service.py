@@ -16,7 +16,7 @@ if os.name == "nt":
 MAX_SECONDS = 9.75
 MAX_IMAGE_WIDTH = 1600
 MIN_PASS_TIMEOUT = 0.35
-MAX_PASS_TIMEOUT = 1.25
+MAX_PASS_TIMEOUT = 9.25
 
 
 def pil_to_cv(image):
