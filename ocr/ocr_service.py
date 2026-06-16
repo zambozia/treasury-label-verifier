@@ -13,7 +13,7 @@ if os.name == "nt":
 
 # Hard OCR budget. The app's target is under 5 seconds per label, so this
 # service stops OCR work before the overall app processing reaches that limit.
-MAX_SECONDS = 7.75
+MAX_SECONDS = 14.75
 MAX_IMAGE_WIDTH = 1600
 MIN_PASS_TIMEOUT = 0.35
 MAX_PASS_TIMEOUT = 1.25
