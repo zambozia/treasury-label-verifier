@@ -61,6 +61,15 @@ def find_best_record_match(records_df, ocr_text: str) -> dict:
 
     status = get_match_status(best_score)
 
+    if status == "No Match":
+        return {
+            "record_id": None,
+            "matched_brand": "No Match",
+            "confidence": best_score,
+            "status": "No Match",
+            "notes": "No confident record match found. Manual review required."
+        }
+
     if status == "Auto Match":
         notes = "High-confidence match found."
     elif status == "Needs Review":
